@@ -29,7 +29,7 @@ def on_message(client, userdata, msg):
     if topic == TOPIC_1:
         if payload == "on":
             print(f"🚀 执行 {topic} 的【开启】逻辑")
-            os.system("python3 test.py")
+            #os.system("python3 test.py")
             # 这里写你开启 A 的代码
         elif payload == "off":
             print(f"💤 执行 {topic} 的【关闭】逻辑")
@@ -39,11 +39,11 @@ def on_message(client, userdata, msg):
     elif topic == TOPIC_2:
         if payload == "on":
             print(f"🚀 执行 {topic} 的【开启】逻辑")
-            os.system("MI_DID=xxxx python3 MiService/micli.py 3-10=true")
+            #os.system("MI_DID=xxxx python3 MiService/micli.py 2=#60")
             # 这里写你开启 B 的代码
         elif payload == "off":
             print(f"💤 执行 {topic} 的【关闭】逻辑")
-            os.system("MI_DID=xxxxx python3 MiService/micli.py 3-10=false")
+            #os.system("MI_DID=xxxxx python3 MiService/micli.py 2=#60")
             # 这里写你关闭 B 的代码
 
 def on_subscribe(client, userdata, mid, granted_qos):
