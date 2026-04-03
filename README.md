@@ -40,9 +40,9 @@
 
 ### 2. 巴法云配置
 1. 注册并登录巴法云，获取你的 **UID**。
-2. 创建一个 MQTT 设备云主题（建议选择 `006` 插座类型）。
-   - 例如主题名为：`light001`
-3. 记录下主题名，稍后填入脚本。
+2. 创建一个或多个 MQTT 设备云主题（建议选择 `006` 插座类型）。
+   - 例如主题名为：`light_control`、`auto_checkin` 等。
+3. 记录下主题名，稍后填入 `HyperTask.py` 脚本。
 
 ### 3. 米家与小爱配置
 1. **同步设备**：在米家 App 中点击 `我的` -> `连接第三方平台` -> `添加巴法`，同步你的虚拟设备。
@@ -63,15 +63,22 @@
    ```
 2. 安装依赖：
    ```bash
-   pip install paho-mqtt miio
+   pip install paho-mqtt python-miio
    ```
-3. 修改配置：
-   - 编辑 `HyperTask.py`，填入你的 `UID` 和 `TOPIC`。
-   - 如需本地控制，编辑 `local_control.py` 填入设备的 `IP` 和 `Token`。
-4. 运行脚本：
+3. **修改配置 (重要!)**：
+   - **`HyperTask.py`**: 
+     - 将 `BEMFA_UID` 替换为你的巴法云 UID。
+     - 修改 `TOPICS` 列表，填入你在巴法云创建的主题名。你可以配置多个主题，并在 `on_message` 函数中根据 `topic` 分发不同的任务逻辑。
+     - 在 `handle_task_1` 和 `handle_task_2` 函数中，根据你的需求编写或调用实际的 Python 脚本或命令。
+   - **`local_control.py`**: 
+     - 如果你需要本地控制米家设备，请将 `DEVICE_IP` 和 `DEVICE_TOKEN` 替换为你的设备信息。
+     - `siid` 和 `piid` 参数需要根据你的具体设备型号进行调整，可以通过 `miiocli device --ip <IP> --token <TOKEN> info` 命令获取设备服务信息。
+
+4. 运行 `HyperTask.py` 脚本：
    ```bash
    python3 HyperTask.py
    ```
+   该脚本将持续监听巴法云 MQTT 消息，并在收到指令时执行相应的任务。
 
 ---
 
@@ -79,17 +86,18 @@
 
 | 文件名 | 说明 |
 | :--- | :--- |
-| `HyperTask.py` | **核心监听脚本**。负责连接巴法云 MQTT，根据收到的指令执行相应逻辑。 |
-| `local_control.py` | **本地控制示例**。展示如何使用 `miio` 库直接控制局域网内的米家设备。 |
+| `HyperTask.py` | **核心 MQTT 监听脚本**。连接巴法云，接收来自小米汽车的指令，并根据主题分发执行预设的 Python 任务逻辑。这是一个高度可配置的模板，用户需根据自身需求修改 `BEMFA_UID`、`TOPICS` 以及 `handle_task_x` 函数中的具体实现。 |
+| `local_control.py` | **米家设备本地控制示例脚本**。演示如何使用 `python-miio` 库直接在局域网内控制米家设备。用户需填入 `DEVICE_IP` 和 `DEVICE_TOKEN`，并根据设备类型调整 `siid` 和 `piid` 参数。 |
 | `README.md` | 项目说明文档。 |
+| `LICENSE` | 项目开源许可证。 |
 
 ---
 
 ## 🔗 相关资源
 
-- [MiService](https://github.com/Yonsm/MiService) - 小米云端服务接口
-- [Xiaomi-cloud-tokens-extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor) - 获取设备 Token 工具
-- [python-miio](https://github.com/rytilahti/python-miio) - 控制米家设备的 Python 库
+- [MiService](https://github.com/Yonsm/MiService) - 小米云端服务接口 (可用于 `HyperTask.py` 中的云端控制逻辑)
+- [Xiaomi-cloud-tokens-extractor](https://github.com/PiotrMachowski/Xiaomi-cloud-tokens-extractor) - 获取米家设备 Token 工具
+- [python-miio](https://github.com/rytilahti/python-miio) - 控制米家设备的 Python 库 (用于 `local_control.py`)
 
 ---
 
