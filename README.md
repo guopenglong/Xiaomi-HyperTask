@@ -63,7 +63,7 @@
    ```
 2. 安装依赖：
    ```bash
-   pip install paho-mqtt python-miio
+   pip install paho-mqtt python-miio requests qrcode
    ```
 3. **修改配置 (重要!)**：
    - **`HyperTask.py`**: 
