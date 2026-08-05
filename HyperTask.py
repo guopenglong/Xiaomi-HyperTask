@@ -34,14 +34,16 @@ def handle_task_1(payload):
 
 def handle_task_2(payload):
     """
-    处理主题 2 的逻辑 (例如: 米家设备控制)
+    处理主题 2 的逻辑 (例如: 小米汽车底盘氛围灯开关)
     """
     if payload == "on":
         print("🚀 正在执行任务 2: [开启] 逻辑...")
-        # 示例: 使用 MiService 控制云端设备
-        # os.system("MI_DID=your_did python3 MiService/micli.py 2=#60")
+        # 示例: 使用 MiService 控制云端设备 底盘氛围灯开启
+        # os.system("python xiaomi_qr_miot.py set --did xxxxx --iid 3-10 --value true")
     elif payload == "off":
         print("💤 正在执行任务 2: [关闭] 逻辑...")
+        # 示例: 使用 MiService 控制云端设备 底盘氛围灯关闭
+        # os.system("python xiaomi_qr_miot.py set --did xxxxx --iid 3-10 --value false")
 
 # ==========================================
 # --- MQTT 回调函数 ---
