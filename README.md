@@ -70,10 +70,176 @@
      - 将 `BEMFA_UID` 替换为你的巴法云 UID。
      - 修改 `TOPICS` 列表，填入你在巴法云创建的主题名。你可以配置多个主题，并在 `on_message` 函数中根据 `topic` 分发不同的任务逻辑。
      - 在 `handle_task_1` 和 `handle_task_2` 函数中，根据你的需求编写或调用实际的 Python 脚本或命令。
-   - **`local_control.py`**: 
-     - 如果你需要本地控制米家设备，请将 `DEVICE_IP` 和 `DEVICE_TOKEN` 替换为你的设备信息。
+   - **`xiaomi_qr_miot.py`**: 
+     - 通过python xiaomi_qr_miot.py devices 执行后扫码登录 获取你的设备did。
      - `siid` 和 `piid` 参数需要根据你的具体设备型号进行调整，可以通过 `miiocli device --ip <IP> --token <TOKEN> info` 命令获取设备服务信息。
+    脚本介绍
+    
+## 1. 扫码登录
 
+首次使用先登录：
+
+```bash
+python xiaomi_qr_miot.py login
+```
+
+执行后会：
+
+1. 请求二维码
+2. 终端显示二维码或登录链接
+3. 用小米汽车 App 扫码
+4. 自动保存登录 token
+
+如果你想忽略本地 token，强制重新扫码：
+
+```bash
+python xiaomi_qr_miot.py --force-qr login
+```
+
+---
+
+## 2. 查询设备列表
+
+查询当前账号下的设备：
+
+```bash
+python xiaomi_qr_miot.py devices
+```
+
+按名字过滤：
+
+```bash
+python xiaomi_qr_miot.py devices --name 台灯
+```
+
+输出完整原始设备信息：
+
+```bash
+python xiaomi_qr_miot.py devices --full
+```
+
+指定区域：
+
+```bash
+python xiaomi_qr_miot.py devices --region cn
+```
+
+返回里通常会看到：
+
+- `name`
+- `model`
+- `did`
+- `token`
+
+其中后续读写属性最重要的是：
+
+- `did`
+
+---
+
+## 3. 读取属性
+
+### 用 `iid` 方式
+
+```bash
+python xiaomi_qr_miot.py get --did 123456789 --iid 2-1
+```
+
+这里：
+
+- `2` = `siid`
+- `1` = `piid`
+
+### 用 `siid/piid` 方式
+
+```bash
+python xiaomi_qr_miot.py get --did 123456789 --siid 2 --piid 1
+```
+
+---
+
+## 4. 设置属性
+
+### 用 `iid` 方式
+
+```bash
+python xiaomi_qr_miot.py set --did 123456789 --iid 2-1 --value 60
+```
+
+### 用 `siid/piid` 方式
+
+```bash
+python xiaomi_qr_miot.py set --did 123456789 --siid 2 --piid 1 --value 60
+```
+
+---
+
+## 5. value 参数说明
+
+`--value` 默认会优先按 JSON 解析，所以这些都可以：
+
+数字：
+
+```bash
+python xiaomi_qr_miot.py set --did 123456789 --iid 2-1 --value 1
+```
+
+布尔值：
+
+```bash
+python xiaomi_qr_miot.py set --did 123456789 --iid 2-1 --value true
+```
+
+字符串：
+
+```bash
+python xiaomi_qr_miot.py set --did 123456789 --iid 2-1 --value '"auto"'
+```
+
+如果不是合法 JSON，会按普通字符串处理。
+
+---
+
+## 6. 自动刷新登录态
+
+脚本会优先复用本地 token。
+
+如果请求时发现登录态失效，会自动按顺序尝试：
+
+1. 用本地 `passToken` 刷新 `xiaomiio` token
+2. 如果还不行，重新扫码登录
+
+所以一般不需要手工删 token 文件。
+
+---
+
+## 7. 常见使用流程
+
+### 第一步：扫码登录
+
+```bash
+python xiaomi_qr_miot.py login
+```
+
+### 第二步：查设备 DID
+
+```bash
+python xiaomi_qr_miot.py devices
+```
+
+### 第三步：读取属性
+
+```bash
+python xiaomi_qr_miot.py get --did 123456789 --iid 2-1
+```
+
+### 第四步：设置属性
+
+```bash
+python xiaomi_qr_miot.py set --did 123456789 --iid 2-1 --value 60
+```
+
+---
 4. 运行 `HyperTask.py` 脚本：
    ```bash
    python3 HyperTask.py
@@ -87,7 +253,7 @@
 | 文件名 | 说明 |
 | :--- | :--- |
 | `HyperTask.py` | **核心 MQTT 监听脚本**。连接巴法云，接收来自小米汽车的指令，并根据主题分发执行预设的 Python 任务逻辑。这是一个高度可配置的模板，用户需根据自身需求修改 `BEMFA_UID`、`TOPICS` 以及 `handle_task_x` 函数中的具体实现。 |
-| `local_control.py` | **米家设备本地控制示例脚本**。演示如何使用 `python-miio` 库直接在局域网内控制米家设备。用户需填入 `DEVICE_IP` 和 `DEVICE_TOKEN`，并根据设备类型调整 `siid` 和 `piid` 参数。 |
+| `xiaomi_qr_miot.py` | **米家设备云端控制脚本**。演示如何使用 `python-miio` 库直接在局域网内控制米家设备。用户需填入 `DEVICE_IP` 和 `DEVICE_TOKEN`，并根据设备类型调整 `siid` 和 `piid` 参数。 |
 | `README.md` | 项目说明文档。 |
 | `LICENSE` | 项目开源许可证。 |
 
